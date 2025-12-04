@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StenoKing - Stenography Practice</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>StenoKing</h1>
+            <p class="subtitle">Stenography Typing Practice</p>
+        </header>
+
+        <main>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-label">WPM</span>
+                    <span class="stat-value" id="wpm">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Words</span>
+                    <span class="stat-value" id="word-count">0</span>
+                </div>
+            </div>
+
+            <div class="word-display">
+                <h2 id="current-word">Press Start</h2>
+            </div>
+
+            <div class="chord-hint" id="chord-hint">
+                <span class="hint-text" id="hint-text"></span>
+            </div>
+
+            <div class="input-section">
+                <input
+                    type="text"
+                    id="word-input"
+                    placeholder="Type the word..."
+                    autocomplete="off"
+                    disabled
+                >
+            </div>
+
+            <div class="controls">
+                <button id="start-btn" class="btn btn-primary">Start Practice</button>
+                <button id="reveal-btn" class="btn btn-secondary" disabled>Reveal Chord</button>
+            </div>
+        </main>
+
+        <footer>
+            <p>Type the word you hear. Click "Reveal Chord" if you need help.</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
