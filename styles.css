@@ -39,6 +39,61 @@ h1 {
     font-size: 1.1em;
 }
 
+.category-selection {
+    background: #f7f7f7;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+}
+
+.category-selection h3 {
+    color: #333;
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.category-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+}
+
+.category-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 15px;
+    background: white;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    user-select: none;
+}
+
+.category-label:hover {
+    border-color: #667eea;
+    transform: translateY(-2px);
+}
+
+.category-label input[type="checkbox"] {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+}
+
+.category-label input[type="checkbox"]:checked + span {
+    color: #667eea;
+    font-weight: 600;
+}
+
+.category-label:has(input[type="checkbox"]:checked) {
+    border-color: #667eea;
+    background: #f0f3ff;
+}
+
 .stats {
     display: flex;
     justify-content: space-around;

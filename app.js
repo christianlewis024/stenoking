@@ -1,23 +1,5 @@
-// Word bank with steno chord mappings
-const wordBank = [
-    { word: 'the', chord: 'T-' },
-    { word: 'is', chord: 'S' },
-    { word: 'at', chord: 'AT' },
-    { word: 'it', chord: 'T' },
-    { word: 'in', chord: 'TPH' },
-    { word: 'on', chord: 'OPB' },
-    { word: 'to', chord: 'TO' },
-    { word: 'of', chord: 'OF' },
-    { word: 'and', chord: 'SKP' },
-    { word: 'for', chord: 'TPOR' },
-    { word: 'are', chord: 'R' },
-    { word: 'as', chord: 'AZ' },
-    { word: 'be', chord: '-B' },
-    { word: 'he', chord: 'HE' },
-    { word: 'or', chord: 'OR' }
-];
-
 // Game state
+let activeWordBank = [];
 let currentWordIndex = 0;
 let wordsCompleted = 0;
 let startTime = null;
@@ -32,6 +14,7 @@ const startBtn = document.getElementById('start-btn');
 const revealBtn = document.getElementById('reveal-btn');
 const chordHintEl = document.getElementById('chord-hint');
 const hintTextEl = document.getElementById('hint-text');
+const categoryCheckboxes = document.querySelectorAll('.category-checkbox');
 
 // Text-to-Speech setup
 const synth = window.speechSynthesis;
@@ -48,15 +31,44 @@ function speakWord(word) {
     synth.speak(utterance);
 }
 
+function getSelectedCategories() {
+    const selected = [];
+    categoryCheckboxes.forEach(checkbox => {
+        if (checkbox.checked) {
+            selected.push(checkbox.value);
+        }
+    });
+    return selected;
+}
+
+function buildActiveWordBank() {
+    const selectedCategories = getSelectedCategories();
+    activeWordBank = [];
+
+    selectedCategories.forEach(category => {
+        if (wordCategories[category]) {
+            activeWordBank = activeWordBank.concat(wordCategories[category]);
+        }
+    });
+
+    return activeWordBank.length > 0;
+}
+
 function shuffleWords() {
     // Fisher-Yates shuffle
-    for (let i = wordBank.length - 1; i > 0; i--) {
+    for (let i = activeWordBank.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [wordBank[i], wordBank[j]] = [wordBank[j], wordBank[i]];
+        [activeWordBank[i], activeWordBank[j]] = [activeWordBank[j], activeWordBank[i]];
     }
 }
 
 function startPractice() {
+    // Build word bank from selected categories
+    if (!buildActiveWordBank()) {
+        alert('Please select at least one category!');
+        return;
+    }
+
     // Reset game state
     wordsCompleted = 0;
     currentWordIndex = 0;
@@ -85,7 +97,7 @@ function showNextWord() {
     hintTextEl.textContent = '';
 
     // Get current word
-    const currentWord = wordBank[currentWordIndex].word;
+    const currentWord = activeWordBank[currentWordIndex].word;
     currentWordEl.textContent = currentWord;
 
     // Speak the word
@@ -96,9 +108,12 @@ function showNextWord() {
 }
 
 function revealChord() {
-    const currentChord = wordBank[currentWordIndex].chord;
+    const currentChord = activeWordBank[currentWordIndex].chord;
     hintTextEl.textContent = currentChord;
     chordHintEl.classList.remove('hidden');
+
+    // Refocus the input after revealing chord
+    wordInputEl.focus();
 }
 
 function calculateWPM() {
@@ -114,7 +129,7 @@ function checkWord() {
     if (!isPlaying) return;
 
     const typedWord = wordInputEl.value.trim().toLowerCase();
-    const currentWord = wordBank[currentWordIndex].word.toLowerCase();
+    const currentWord = activeWordBank[currentWordIndex].word.toLowerCase();
 
     if (typedWord === currentWord) {
         // Correct word typed
@@ -135,7 +150,7 @@ function checkWord() {
         currentWordIndex++;
 
         // Loop back to start if we've gone through all words
-        if (currentWordIndex >= wordBank.length) {
+        if (currentWordIndex >= activeWordBank.length) {
             currentWordIndex = 0;
             shuffleWords();
         }

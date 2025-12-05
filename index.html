@@ -14,6 +14,44 @@
         </header>
 
         <main>
+            <div class="category-selection" id="category-selection">
+                <h3>Select Categories:</h3>
+                <div class="category-checkboxes">
+                    <label class="category-label">
+                        <input type="checkbox" value="lesson-1" class="category-checkbox">
+                        <span>Lesson 1</span>
+                    </label>
+                    <label class="category-label">
+                        <input type="checkbox" value="dropping-unstressed-vowels" class="category-checkbox">
+                        <span>Dropping Unstressed Vowels</span>
+                    </label>
+                    <label class="category-label">
+                        <input type="checkbox" value="diphthong-chords" class="category-checkbox">
+                        <span>Diphthong Chords</span>
+                    </label>
+                    <label class="category-label">
+                        <input type="checkbox" value="vowel-disambiguator-chords" class="category-checkbox">
+                        <span>Vowel Disambiguator Chords</span>
+                    </label>
+                    <label class="category-label">
+                        <input type="checkbox" value="1-keystroke" class="category-checkbox">
+                        <span>1 Keystroke</span>
+                    </label>
+                    <label class="category-label">
+                        <input type="checkbox" value="2-keystrokes" class="category-checkbox">
+                        <span>2 Keystrokes</span>
+                    </label>
+                    <label class="category-label">
+                        <input type="checkbox" value="3-keystrokes" class="category-checkbox">
+                        <span>3 Keystrokes</span>
+                    </label>
+                    <label class="category-label">
+                        <input type="checkbox" value="4-keystrokes" class="category-checkbox">
+                        <span>4 Keystrokes</span>
+                    </label>
+                </div>
+            </div>
+
             <div class="stats">
                 <div class="stat-item">
                     <span class="stat-label">WPM</span>
@@ -26,7 +64,7 @@
             </div>
 
             <div class="word-display">
-                <h2 id="current-word">Press Start</h2>
+                <h2 id="current-word">Select categories and press Start</h2>
             </div>
 
             <div class="chord-hint" id="chord-hint">
@@ -54,6 +92,7 @@
         </footer>
     </div>
 
+    <script src="words.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
