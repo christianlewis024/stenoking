@@ -16,6 +16,8 @@
             </div>
             <div class="nav-links">
                 <span class="nav-subtitle">Master Your Stenography Skills</span>
+                <button id="custom-list-btn" class="custom-list-btn">Custom List</button>
+                <button id="custom-phrase-btn" class="custom-list-btn">Custom Phrase</button>
             </div>
         </div>
     </nav>
@@ -131,6 +133,18 @@
                         <span>100 Common Briefs</span>
                     </label>
                 </div>
+
+                <div class="category-group" id="custom-category" style="display: none;">
+                    <h4 class="group-title">Custom</h4>
+                    <label class="category-label" id="custom-list-item" style="display: none;">
+                        <input type="checkbox" value="custom-list" class="category-checkbox">
+                        <span id="custom-list-label">My Custom List (0)</span>
+                    </label>
+                    <label class="category-label" id="custom-phrase-item" style="display: none;">
+                        <input type="checkbox" value="custom-phrase" class="category-checkbox">
+                        <span id="custom-phrase-label">My Custom Phrase (0)</span>
+                    </label>
+                </div>
             </div>
         </aside>
 
@@ -200,6 +214,48 @@
             <div class="deco-circle deco-2"></div>
             <div class="deco-line deco-3"></div>
         </main>
+    </div>
+
+    <!-- Custom List Modal -->
+    <div id="custom-list-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create Custom Word List</h2>
+                <span class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p class="modal-instructions">Enter up to 200 words (one per line). We'll automatically look up the Plover steno chords for each word.</p>
+                <textarea id="custom-words-input" placeholder="Enter words here, one per line...&#10;Example:&#10;hello&#10;world&#10;stenography"></textarea>
+                <div class="word-count-display">
+                    <span id="word-count-display">0</span> / 200 words
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancel-custom-btn" class="btn btn-secondary">Cancel</button>
+                <button id="save-custom-btn" class="btn btn-primary">Save List</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Phrase Modal -->
+    <div id="custom-phrase-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create Custom Phrase</h2>
+                <span class="modal-close-phrase">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p class="modal-instructions">Paste a phrase or paragraph (up to 200 words). We'll automatically look up the Plover steno chords for each word, separated by spaces.</p>
+                <textarea id="custom-phrase-input" placeholder="Paste your phrase or paragraph here...&#10;Example: The quick brown fox jumps over the lazy dog"></textarea>
+                <div class="word-count-display">
+                    <span id="phrase-word-count-display">0</span> / 200 words
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancel-phrase-btn" class="btn btn-secondary">Cancel</button>
+                <button id="save-phrase-btn" class="btn btn-primary">Save Phrase</button>
+            </div>
+        </div>
     </div>
 
     <script src="words.js"></script>
