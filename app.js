@@ -10,10 +10,23 @@ let isSentenceMode = false;
 let currentSentenceWordIndex = 0;
 let ttsMode = 'word'; // 'word' or 'sentence'
 
+// Anki mode state
+let ankiMode = false;
+let wordScores = {}; // {wordKey: {score: 0, lastSeen: timestamp, responseTime: []}}
+let currentWordStartTime = null;
+
 // Custom list state
 let ploverDictionary = null;
 let customWordList = [];
 let customPhraseData = null; // Will store {sentence, words, chords}
+
+// Settings state
+let settings = {
+    bgColor1: '#0f172a',
+    bgColor2: '#1e293b',
+    noiseyMode: false,
+    textureEnabled: false
+};
 
 // DOM elements
 const currentWordEl = document.getElementById('current-word');
@@ -21,6 +34,7 @@ const wordInputEl = document.getElementById('word-input');
 const wpmEl = document.getElementById('wpm');
 const wordCountEl = document.getElementById('word-count');
 const startBtn = document.getElementById('start-btn');
+const pauseBtn = document.getElementById('pause-btn');
 const revealBtn = document.getElementById('reveal-btn');
 const chordHintEl = document.getElementById('chord-hint');
 const hintTextEl = document.getElementById('hint-text');
@@ -29,6 +43,7 @@ const ttsModeSection = document.getElementById('tts-mode-section');
 const ttsWordBtn = document.getElementById('tts-word-btn');
 const ttsSentenceBtn = document.getElementById('tts-sentence-btn');
 const clearAllBtn = document.getElementById('clear-all');
+const difficultyIndicator = document.getElementById('difficulty-indicator');
 
 // Custom list DOM elements
 const customListBtn = document.getElementById('custom-list-btn');
@@ -52,6 +67,20 @@ const customPhraseInput = document.getElementById('custom-phrase-input');
 const phraseWordCountDisplay = document.getElementById('phrase-word-count-display');
 const customPhraseItem = document.getElementById('custom-phrase-item');
 const customPhraseLabel = document.getElementById('custom-phrase-label');
+
+// Settings DOM elements
+const settingsBtn = document.getElementById('settings-btn');
+const settingsModal = document.getElementById('settings-modal');
+const modalCloseSettings = document.querySelector('.modal-close-settings');
+const closeSettingsBtn = document.getElementById('close-settings-btn');
+const bgColor1Input = document.getElementById('bg-color-1');
+const bgColor2Input = document.getElementById('bg-color-2');
+const resetGradientBtn = document.getElementById('reset-gradient-btn');
+const noiseyModeToggle = document.getElementById('noisey-mode-toggle');
+const textureToggle = document.getElementById('texture-toggle');
+
+// Anki mode DOM element
+const ankiModeCheckbox = document.getElementById('anki-mode-checkbox');
 
 // Text-to-Speech setup
 const synth = window.speechSynthesis;
@@ -81,18 +110,29 @@ function getSelectedCategories() {
 function buildActiveWordBank() {
     const selectedCategories = getSelectedCategories();
     activeWordBank = [];
-    isSentenceMode = false;
+
+    // Separate word banks for sentences and single words
+    let sentenceBank = [];
+    let wordBank = [];
 
     selectedCategories.forEach(category => {
         if (wordCategories[category]) {
             const items = wordCategories[category];
             // Check if this is a sentence category
             if (items.length > 0 && items[0].sentence) {
-                isSentenceMode = true;
+                sentenceBank = sentenceBank.concat(items);
+            } else {
+                wordBank = wordBank.concat(items);
             }
-            activeWordBank = activeWordBank.concat(items);
         }
     });
+
+    // Combine both banks (sentences first, then words)
+    activeWordBank = sentenceBank.concat(wordBank);
+
+    // Set sentence mode based on what we have
+    // If we have sentences, we'll handle mixed mode in showNextWord
+    isSentenceMode = sentenceBank.length > 0;
 
     return activeWordBank.length > 0;
 }
@@ -103,6 +143,142 @@ function shuffleWords() {
         const j = Math.floor(Math.random() * (i + 1));
         [activeWordBank[i], activeWordBank[j]] = [activeWordBank[j], activeWordBank[i]];
     }
+}
+
+// ====== ANKI MODE FUNCTIONS ======
+
+// Generate unique key for a word (for tracking scores)
+function getWordKey(item, sentenceWordIndex = 0) {
+    if (item.sentence) {
+        return `sentence_${item.sentence}_word_${sentenceWordIndex}`;
+    } else {
+        return `word_${item.word}`;
+    }
+}
+
+// Initialize score for a word if it doesn't exist
+function initWordScore(wordKey) {
+    if (!wordScores[wordKey]) {
+        wordScores[wordKey] = {
+            score: 0, // Higher score = needs more practice
+            lastSeen: Date.now(),
+            responseTimes: []
+        };
+    }
+}
+
+// Update word score based on response time
+function updateWordScore(wordKey, responseTime) {
+    initWordScore(wordKey);
+
+    const score = wordScores[wordKey];
+    score.lastSeen = Date.now();
+    score.responseTimes.push(responseTime);
+
+    // Keep only last 10 response times
+    if (score.responseTimes.length > 10) {
+        score.responseTimes.shift();
+    }
+
+    // Calculate average response time
+    const avgTime = score.responseTimes.reduce((a, b) => a + b, 0) / score.responseTimes.length;
+
+    // Update score based on response time
+    // Fast response (< 2s): decrease score (less practice needed)
+    // Slow response (> 5s): increase score (more practice needed)
+    if (responseTime < 2000) {
+        score.score = Math.max(0, score.score - 2);
+    } else if (responseTime < 4000) {
+        score.score = Math.max(0, score.score - 1);
+    } else if (responseTime < 6000) {
+        score.score += 1;
+    } else {
+        score.score += 3;
+    }
+
+    // Save to localStorage
+    saveWordScores();
+}
+
+// Sort word bank by Anki algorithm
+function sortByAnkiScores() {
+    activeWordBank.sort((a, b) => {
+        // Get all possible word keys for comparison
+        let aKeys = [];
+        let bKeys = [];
+
+        if (a.sentence) {
+            for (let i = 0; i < a.words.length; i++) {
+                aKeys.push(getWordKey(a, i));
+            }
+        } else {
+            aKeys.push(getWordKey(a));
+        }
+
+        if (b.sentence) {
+            for (let i = 0; i < b.words.length; i++) {
+                bKeys.push(getWordKey(b, i));
+            }
+        } else {
+            bKeys.push(getWordKey(b));
+        }
+
+        // Get average scores
+        const aScore = aKeys.reduce((sum, key) => {
+            initWordScore(key);
+            return sum + wordScores[key].score;
+        }, 0) / aKeys.length;
+
+        const bScore = bKeys.reduce((sum, key) => {
+            initWordScore(key);
+            return sum + wordScores[key].score;
+        }, 0) / bKeys.length;
+
+        // Higher score first (needs more practice)
+        return bScore - aScore;
+    });
+}
+
+// Save word scores to localStorage
+function saveWordScores() {
+    localStorage.setItem('stenoKingAnkiScores', JSON.stringify(wordScores));
+}
+
+// Load word scores from localStorage
+function loadWordScores() {
+    const saved = localStorage.getItem('stenoKingAnkiScores');
+    if (saved) {
+        try {
+            wordScores = JSON.parse(saved);
+        } catch (e) {
+            console.error('Error loading Anki scores:', e);
+        }
+    }
+}
+
+// Get difficulty color based on score
+function getDifficultyColor(score) {
+    // Score ranges: 0 (easy/green) to 15+ (hard/red)
+    if (score <= 0) return '#10b981'; // Green - Easy
+    if (score <= 3) return '#84cc16'; // Lime - Pretty Easy
+    if (score <= 6) return '#facc15'; // Yellow - Medium
+    if (score <= 10) return '#fb923c'; // Orange - Getting Hard
+    return '#ef4444'; // Red - Hard
+}
+
+// Update difficulty indicator
+function updateDifficultyIndicator(wordKey) {
+    if (!ankiMode) {
+        difficultyIndicator.style.display = 'none';
+        return;
+    }
+
+    initWordScore(wordKey);
+    const score = wordScores[wordKey].score;
+    const color = getDifficultyColor(score);
+
+    difficultyIndicator.style.display = 'block';
+    difficultyIndicator.style.backgroundColor = color;
 }
 
 function startPractice() {
@@ -119,8 +295,12 @@ function startPractice() {
     startTime = Date.now();
     isPlaying = true;
 
-    // Shuffle words for variety
-    shuffleWords();
+    // Sort or shuffle based on Anki mode
+    if (ankiMode) {
+        sortByAnkiScores();
+    } else {
+        shuffleWords();
+    }
 
     // Update UI
     wordCountEl.textContent = '0';
@@ -128,7 +308,9 @@ function startPractice() {
     wordInputEl.value = '';
     wordInputEl.disabled = false;
     wordInputEl.focus();
-    startBtn.textContent = 'Restart';
+    startBtn.innerHTML = '<span class="btn-icon">🔄</span><span>Restart</span>';
+    pauseBtn.disabled = false;
+    pauseBtn.innerHTML = '<span class="btn-icon">⏸</span><span>Pause</span>';
     revealBtn.disabled = false;
 
     // Show first word/sentence
@@ -140,9 +322,25 @@ function showNextWord() {
     chordHintEl.classList.add('hidden');
     hintTextEl.textContent = '';
 
-    if (isSentenceMode) {
-        // Sentence mode: show the current sentence with underlined current word
-        const currentItem = activeWordBank[currentWordIndex];
+    // Start timing for Anki mode
+    if (ankiMode) {
+        currentWordStartTime = Date.now();
+    }
+
+    const currentItem = activeWordBank[currentWordIndex];
+
+    // Update difficulty indicator for Anki mode
+    if (currentItem.sentence) {
+        const wordKey = getWordKey(currentItem, currentSentenceWordIndex);
+        updateDifficultyIndicator(wordKey);
+    } else {
+        const wordKey = getWordKey(currentItem);
+        updateDifficultyIndicator(wordKey);
+    }
+
+    // Check if current item is a sentence or single word
+    if (currentItem.sentence) {
+        // This is a sentence item
         const currentWord = currentItem.words[currentSentenceWordIndex];
 
         // Build the sentence with HTML to underline the current word
@@ -180,7 +378,7 @@ function showNextWord() {
         }
     } else {
         // Single word mode
-        const currentWord = activeWordBank[currentWordIndex].word;
+        const currentWord = currentItem.word;
         currentWordEl.textContent = currentWord;
         speakWord(currentWord);
     }
@@ -190,15 +388,17 @@ function showNextWord() {
 }
 
 function revealChord() {
-    if (isSentenceMode) {
+    const currentItem = activeWordBank[currentWordIndex];
+
+    // Check if current item is a sentence or single word
+    if (currentItem.sentence) {
         // Reveal chord for current word in sentence
-        const currentItem = activeWordBank[currentWordIndex];
         const currentChord = currentItem.chords[currentSentenceWordIndex];
         const currentWord = currentItem.words[currentSentenceWordIndex];
         hintTextEl.textContent = `${currentWord}: ${currentChord}`;
     } else {
         // Reveal chord for single word
-        const currentChord = activeWordBank[currentWordIndex].chord;
+        const currentChord = currentItem.chord;
         hintTextEl.textContent = currentChord;
     }
 
@@ -221,86 +421,117 @@ function checkWord() {
     if (!isPlaying) return;
 
     const typedWord = wordInputEl.value.trim().toLowerCase();
+    const currentItem = activeWordBank[currentWordIndex];
 
-    if (isSentenceMode) {
-        // Sentence mode: check current word in sentence
-        const currentItem = activeWordBank[currentWordIndex];
-        const currentWord = currentItem.words[currentSentenceWordIndex].toLowerCase();
+    // Determine current word based on item type
+    let currentWord;
+    if (currentItem.sentence) {
+        // This is a sentence item
+        currentWord = currentItem.words[currentSentenceWordIndex].toLowerCase();
+    } else {
+        // This is a single word item
+        currentWord = currentItem.word.toLowerCase();
+    }
 
-        if (typedWord === currentWord) {
-            // Correct word typed
-            wordsCompleted++;
-            wordCountEl.textContent = wordsCompleted;
+    if (typedWord === currentWord) {
+        // Correct word typed
+        wordsCompleted++;
+        wordCountEl.textContent = wordsCompleted;
 
-            // Update WPM
-            const wpm = calculateWPM();
-            wpmEl.textContent = wpm;
+        // Update WPM
+        const wpm = calculateWPM();
+        wpmEl.textContent = wpm;
 
-            // Animation feedback
-            currentWordEl.classList.add('correct-animation');
-            setTimeout(() => {
-                currentWordEl.classList.remove('correct-animation');
-            }, 300);
+        // Update Anki score if in Anki mode
+        if (ankiMode && currentWordStartTime) {
+            const responseTime = Date.now() - currentWordStartTime;
+            const wordKey = getWordKey(currentItem, currentItem.sentence ? currentSentenceWordIndex : 0);
+            updateWordScore(wordKey, responseTime);
+        }
 
+        // Animation feedback
+        currentWordEl.classList.add('correct-animation');
+        setTimeout(() => {
+            currentWordEl.classList.remove('correct-animation');
+        }, 300);
+
+        // Play success sound
+        playSuccessSound();
+
+        // Determine what to do next
+        if (currentItem.sentence) {
             // Move to next word in sentence
             currentSentenceWordIndex++;
 
             // Check if sentence is complete
             if (currentSentenceWordIndex >= currentItem.words.length) {
-                // Sentence complete, move to next sentence
+                // Sentence complete, move to next item
                 currentSentenceWordIndex = 0;
                 currentWordIndex++;
 
-                // Loop back to start if we've gone through all sentences
+                // Loop back to start if we've gone through all items
                 if (currentWordIndex >= activeWordBank.length) {
                     currentWordIndex = 0;
+                    if (ankiMode) {
+                        sortByAnkiScores();
+                    } else {
+                        shuffleWords();
+                    }
+                }
+            }
+        } else {
+            // Move to next single word
+            currentWordIndex++;
+
+            // Loop back to start if we've gone through all items
+            if (currentWordIndex >= activeWordBank.length) {
+                currentWordIndex = 0;
+                if (ankiMode) {
+                    sortByAnkiScores();
+                } else {
                     shuffleWords();
                 }
             }
+        }
 
-            // Show next word after brief delay
-            setTimeout(() => {
-                showNextWord();
-            }, 300);
+        // Show next word after brief delay
+        setTimeout(() => {
+            showNextWord();
+        }, 300);
+    }
+}
+
+// Pause/Resume functionality
+function togglePause() {
+    if (isPlaying) {
+        // Pause
+        isPlaying = false;
+        wordInputEl.disabled = true;
+        pauseBtn.innerHTML = '<span class="btn-icon">▶</span><span>Resume</span>';
+        currentWordEl.style.opacity = '0.5';
+
+        // Stop timing for Anki mode
+        if (ankiMode && currentWordStartTime) {
+            currentWordStartTime = null;
         }
     } else {
-        // Single word mode
-        const currentWord = activeWordBank[currentWordIndex].word.toLowerCase();
+        // Resume
+        isPlaying = true;
+        wordInputEl.disabled = false;
+        wordInputEl.focus();
+        pauseBtn.innerHTML = '<span class="btn-icon">⏸</span><span>Pause</span>';
+        currentWordEl.style.opacity = '1';
 
-        if (typedWord === currentWord) {
-            // Correct word typed
-            wordsCompleted++;
-            wordCountEl.textContent = wordsCompleted;
-
-            // Update WPM
-            const wpm = calculateWPM();
-            wpmEl.textContent = wpm;
-
-            // Animation feedback
-            currentWordEl.classList.add('correct-animation');
-            setTimeout(() => {
-                currentWordEl.classList.remove('correct-animation');
-            }, 300);
-
-            // Move to next word
-            currentWordIndex++;
-
-            // Loop back to start if we've gone through all words
-            if (currentWordIndex >= activeWordBank.length) {
-                currentWordIndex = 0;
-                shuffleWords();
-            }
-
-            // Show next word after brief delay
-            setTimeout(() => {
-                showNextWord();
-            }, 300);
+        // Restart timing for Anki mode
+        if (ankiMode) {
+            currentWordStartTime = Date.now();
         }
     }
 }
 
 // Event listeners
 startBtn.addEventListener('click', startPractice);
+pauseBtn.addEventListener('click', togglePause);
 revealBtn.addEventListener('click', revealChord);
 
 wordInputEl.addEventListener('input', checkWord);
@@ -714,7 +945,162 @@ function loadCustomPhraseFromStorage() {
     }
 }
 
-// Initialize: Load dictionary and custom list/phrase
+// ====== SETTINGS FUNCTIONALITY ======
+
+// Audio Context for sound generation
+let audioContext = null;
+
+// Play success sound - soft and subtle
+function playSuccessSound() {
+    if (!settings.noiseyMode) return;
+
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    // Soft, pleasant "click" sound - higher frequency, very quiet
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(1200, audioContext.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(1400, audioContext.currentTime + 0.05);
+
+    // Much quieter volume
+    gainNode.gain.setValueAtTime(0.08, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.08);
+
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.08);
+}
+
+// Update background gradient
+function updateBackgroundGradient() {
+    document.body.style.background = `linear-gradient(135deg, ${settings.bgColor1}, ${settings.bgColor2})`;
+}
+
+// Open settings modal
+settingsBtn.addEventListener('click', () => {
+    settingsModal.classList.add('show');
+
+    // Load current settings into inputs
+    bgColor1Input.value = settings.bgColor1;
+    bgColor2Input.value = settings.bgColor2;
+    noiseyModeToggle.checked = settings.noiseyMode;
+    textureToggle.checked = settings.textureEnabled;
+});
+
+// Close settings modal
+function closeSettingsModal() {
+    settingsModal.classList.remove('show');
+}
+
+modalCloseSettings.addEventListener('click', closeSettingsModal);
+closeSettingsBtn.addEventListener('click', closeSettingsModal);
+
+// Click outside modal to close
+settingsModal.addEventListener('click', (e) => {
+    if (e.target === settingsModal) {
+        closeSettingsModal();
+    }
+});
+
+// Background gradient color pickers
+bgColor1Input.addEventListener('input', (e) => {
+    settings.bgColor1 = e.target.value;
+    updateBackgroundGradient();
+    saveSettings();
+});
+
+bgColor2Input.addEventListener('input', (e) => {
+    settings.bgColor2 = e.target.value;
+    updateBackgroundGradient();
+    saveSettings();
+});
+
+// Reset gradient button
+resetGradientBtn.addEventListener('click', () => {
+    settings.bgColor1 = '#0f172a';
+    settings.bgColor2 = '#1e293b';
+    bgColor1Input.value = settings.bgColor1;
+    bgColor2Input.value = settings.bgColor2;
+    updateBackgroundGradient();
+    saveSettings();
+});
+
+// Noisey mode toggle
+noiseyModeToggle.addEventListener('change', (e) => {
+    settings.noiseyMode = e.target.checked;
+    saveSettings();
+
+    // Play demo sound
+    if (settings.noiseyMode) {
+        playSuccessSound();
+    }
+});
+
+// Texture toggle
+textureToggle.addEventListener('change', (e) => {
+    settings.textureEnabled = e.target.checked;
+    updateBackgroundTexture();
+    saveSettings();
+});
+
+// Update background texture
+function updateBackgroundTexture() {
+    if (settings.textureEnabled) {
+        document.body.classList.add('texture-enabled');
+    } else {
+        document.body.classList.remove('texture-enabled');
+    }
+}
+
+// Save settings to localStorage
+function saveSettings() {
+    localStorage.setItem('stenoKingSettings', JSON.stringify(settings));
+}
+
+// Load settings from localStorage
+function loadSettings() {
+    const savedSettings = localStorage.getItem('stenoKingSettings');
+    if (savedSettings) {
+        try {
+            settings = JSON.parse(savedSettings);
+            updateBackgroundGradient();
+            updateBackgroundTexture();
+        } catch (e) {
+            console.error('Error loading settings:', e);
+        }
+    }
+}
+
+// Anki mode toggle
+ankiModeCheckbox.addEventListener('change', (e) => {
+    ankiMode = e.target.checked;
+    localStorage.setItem('stenoKingAnkiMode', ankiMode);
+
+    // If currently playing, re-sort the word bank
+    if (isPlaying && ankiMode) {
+        sortByAnkiScores();
+    }
+});
+
+// Load Anki mode preference
+function loadAnkiMode() {
+    const saved = localStorage.getItem('stenoKingAnkiMode');
+    if (saved !== null) {
+        ankiMode = saved === 'true';
+        ankiModeCheckbox.checked = ankiMode;
+    }
+}
+
+// Initialize: Load dictionary, custom lists, settings, and Anki data
 loadPloverDictionary();
 loadCustomListFromStorage();
 loadCustomPhraseFromStorage();
+loadSettings();
+loadWordScores();
+loadAnkiMode();

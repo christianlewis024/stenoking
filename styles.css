@@ -26,6 +26,45 @@ body {
     color: var(--text-primary);
     min-height: 100vh;
     overflow-x: hidden;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+        repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 100px,
+            rgba(255, 255, 255, 0.02) 100px,
+            rgba(255, 255, 255, 0.02) 200px
+        ),
+        repeating-linear-gradient(
+            -45deg,
+            transparent,
+            transparent 100px,
+            rgba(255, 255, 255, 0.01) 100px,
+            rgba(255, 255, 255, 0.01) 200px
+        );
+    transition: opacity 0.5s ease;
+}
+
+body.texture-enabled::before {
+    opacity: 1;
+}
+
+.navbar,
+.app-container {
+    position: relative;
+    z-index: 1;
 }
 
 /* Navbar */
@@ -96,6 +135,62 @@ body {
 .custom-list-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(99, 102, 241, 0.5);
+}
+
+.settings-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.settings-btn:hover {
+    transform: rotate(90deg);
+    color: var(--primary);
+    background: rgba(99, 102, 241, 0.1);
+}
+
+.anki-mode-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.3s;
+    user-select: none;
+}
+
+.anki-mode-toggle:hover {
+    background: rgba(99, 102, 241, 0.1);
+}
+
+.anki-mode-toggle input[type="checkbox"] {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--secondary);
+}
+
+.anki-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.anki-mode-toggle:has(input[type="checkbox"]:checked) .anki-label {
+    color: var(--secondary);
+    font-weight: 600;
 }
 
 /* Main Container */
@@ -348,8 +443,18 @@ body {
     margin: 3rem 0;
     min-height: 120px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 1rem;
+}
+
+.difficulty-indicator {
+    width: 60px;
+    height: 8px;
+    border-radius: 4px;
+    transition: background-color 0.5s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 #current-word {
@@ -470,6 +575,17 @@ body {
 .btn-secondary:hover:not(:disabled) {
     transform: translateY(-2px);
     box-shadow: 0 6px 25px rgba(245, 158, 11, 0.6);
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #ec4899, #d946aa);
+    color: white;
+    box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+}
+
+.btn-warning:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(236, 72, 153, 0.6);
 }
 
 .btn:disabled {
@@ -669,6 +785,121 @@ body {
 .modal-footer .btn {
     flex: 0 1 auto;
     min-width: 120px;
+}
+
+/* Settings Modal Styles */
+.settings-modal-content {
+    max-width: 700px;
+}
+
+.setting-section {
+    padding: 1.5rem;
+    background: var(--bg-main);
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border);
+}
+
+.setting-title {
+    color: var(--primary-light);
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.setting-description {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.color-picker-group {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+.color-picker-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.color-picker-item label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.color-picker-item input[type="color"] {
+    width: 80px;
+    height: 50px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    background: var(--bg-card);
+}
+
+.btn-small {
+    padding: 0.6rem 1rem;
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.3s;
+}
+
+.btn-small:hover {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+/* Toggle Switch */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--border);
+    transition: 0.4s;
+    border-radius: 34px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    background-color: var(--primary);
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(26px);
 }
 
 /* Responsive */

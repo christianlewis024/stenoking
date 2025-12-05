@@ -16,8 +16,13 @@
             </div>
             <div class="nav-links">
                 <span class="nav-subtitle">Master Your Stenography Skills</span>
+                <label class="anki-mode-toggle">
+                    <input type="checkbox" id="anki-mode-checkbox">
+                    <span class="anki-label">Anki Mode</span>
+                </label>
                 <button id="custom-list-btn" class="custom-list-btn">Custom List</button>
                 <button id="custom-phrase-btn" class="custom-list-btn">Custom Phrase</button>
+                <button id="settings-btn" class="settings-btn" title="Settings">⚙️</button>
             </div>
         </div>
     </nav>
@@ -30,6 +35,18 @@
                 <button id="clear-all" class="clear-btn">Clear All</button>
             </div>
             <div class="category-list">
+                <div class="category-group" id="custom-category" style="display: none;">
+                    <h4 class="group-title">Custom</h4>
+                    <label class="category-label" id="custom-list-item" style="display: none;">
+                        <input type="checkbox" value="custom-list" class="category-checkbox">
+                        <span id="custom-list-label">My Custom List (0)</span>
+                    </label>
+                    <label class="category-label" id="custom-phrase-item" style="display: none;">
+                        <input type="checkbox" value="custom-phrase" class="category-checkbox">
+                        <span id="custom-phrase-label">My Custom Phrase (0)</span>
+                    </label>
+                </div>
+
                 <div class="category-group">
                     <h4 class="group-title">Intro</h4>
                     <label class="category-label">
@@ -133,18 +150,6 @@
                         <span>100 Common Briefs</span>
                     </label>
                 </div>
-
-                <div class="category-group" id="custom-category" style="display: none;">
-                    <h4 class="group-title">Custom</h4>
-                    <label class="category-label" id="custom-list-item" style="display: none;">
-                        <input type="checkbox" value="custom-list" class="category-checkbox">
-                        <span id="custom-list-label">My Custom List (0)</span>
-                    </label>
-                    <label class="category-label" id="custom-phrase-item" style="display: none;">
-                        <input type="checkbox" value="custom-phrase" class="category-checkbox">
-                        <span id="custom-phrase-label">My Custom Phrase (0)</span>
-                    </label>
-                </div>
             </div>
         </aside>
 
@@ -177,6 +182,7 @@
 
                 <!-- Word Display -->
                 <div class="word-display">
+                    <div id="difficulty-indicator" class="difficulty-indicator" style="display: none;"></div>
                     <h2 id="current-word">Select categories and press Start</h2>
                 </div>
 
@@ -201,6 +207,10 @@
                     <button id="start-btn" class="btn btn-primary">
                         <span class="btn-icon">▶</span>
                         <span>Start Practice</span>
+                    </button>
+                    <button id="pause-btn" class="btn btn-warning" disabled>
+                        <span class="btn-icon">⏸</span>
+                        <span>Pause</span>
                     </button>
                     <button id="reveal-btn" class="btn btn-secondary" disabled>
                         <span class="btn-icon">👁️</span>
@@ -254,6 +264,57 @@
             <div class="modal-footer">
                 <button id="cancel-phrase-btn" class="btn btn-secondary">Cancel</button>
                 <button id="save-phrase-btn" class="btn btn-primary">Save Phrase</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content settings-modal-content">
+            <div class="modal-header">
+                <h2>Settings</h2>
+                <span class="modal-close-settings">&times;</span>
+            </div>
+            <div class="modal-body">
+                <!-- Background Gradient -->
+                <div class="setting-section">
+                    <h3 class="setting-title">Background Gradient</h3>
+                    <p class="setting-description">Choose a custom two-color gradient for the background</p>
+                    <div class="color-picker-group">
+                        <div class="color-picker-item">
+                            <label for="bg-color-1">Color 1</label>
+                            <input type="color" id="bg-color-1" value="#0f172a">
+                        </div>
+                        <div class="color-picker-item">
+                            <label for="bg-color-2">Color 2</label>
+                            <input type="color" id="bg-color-2" value="#1e293b">
+                        </div>
+                        <button id="reset-gradient-btn" class="btn-small">Reset to Default</button>
+                    </div>
+                </div>
+
+                <!-- Noisey Mode -->
+                <div class="setting-section">
+                    <h3 class="setting-title">Noisey Mode</h3>
+                    <p class="setting-description">Play a subtle, satisfying sound when you type a word correctly</p>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="noisey-mode-toggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <!-- Background Texture -->
+                <div class="setting-section">
+                    <h3 class="setting-title">Background Texture</h3>
+                    <p class="setting-description">Add a subtle texture overlay to the background</p>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="texture-toggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="close-settings-btn" class="btn btn-primary">Done</button>
             </div>
         </div>
     </div>
