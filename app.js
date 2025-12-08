@@ -4,6 +4,7 @@ let currentWordIndex = 0;
 let wordsCompleted = 0;
 let startTime = null;
 let isPlaying = false;
+let revealAlwaysMode = false;
 
 // Sentence mode state
 let isSentenceMode = false;
@@ -36,6 +37,8 @@ const wordCountEl = document.getElementById('word-count');
 const startBtn = document.getElementById('start-btn');
 const pauseBtn = document.getElementById('pause-btn');
 const revealBtn = document.getElementById('reveal-btn');
+const revealAlwaysBtn = document.getElementById('reveal-always-btn');
+const revealAlwaysText = document.getElementById('reveal-always-text');
 const chordHintEl = document.getElementById('chord-hint');
 const hintTextEl = document.getElementById('hint-text');
 const categoryCheckboxes = document.querySelectorAll('.category-checkbox');
@@ -312,15 +315,18 @@ function startPractice() {
     pauseBtn.disabled = false;
     pauseBtn.innerHTML = '<span class="btn-icon">⏸</span><span>Pause</span>';
     revealBtn.disabled = false;
+    revealAlwaysBtn.disabled = false;
 
     // Show first word/sentence
     showNextWord();
 }
 
 function showNextWord() {
-    // Hide chord hint
-    chordHintEl.classList.add('hidden');
-    hintTextEl.textContent = '';
+    // Hide chord hint (unless reveal always mode is on)
+    if (!revealAlwaysMode) {
+        chordHintEl.classList.add('hidden');
+        hintTextEl.textContent = '';
+    }
 
     // Start timing for Anki mode
     if (ankiMode) {
@@ -385,6 +391,11 @@ function showNextWord() {
 
     // Clear input
     wordInputEl.value = '';
+
+    // Auto-reveal chord if reveal always mode is on
+    if (revealAlwaysMode) {
+        revealChord();
+    }
 }
 
 function revealChord() {
@@ -529,10 +540,39 @@ function togglePause() {
     }
 }
 
+// Toggle Reveal Always mode
+function toggleRevealAlways() {
+    revealAlwaysMode = !revealAlwaysMode;
+
+    // Update button appearance
+    if (revealAlwaysMode) {
+        revealAlwaysBtn.classList.remove('btn-toggle');
+        revealAlwaysBtn.classList.add('btn-toggle-active');
+        revealAlwaysText.textContent = 'Hide Always';
+
+        // Show current chord if playing
+        if (isPlaying) {
+            revealChord();
+        }
+    } else {
+        revealAlwaysBtn.classList.remove('btn-toggle-active');
+        revealAlwaysBtn.classList.add('btn-toggle');
+        revealAlwaysText.textContent = 'Reveal Always';
+
+        // Hide chord hint
+        chordHintEl.classList.add('hidden');
+        hintTextEl.textContent = '';
+    }
+
+    // Save to localStorage
+    localStorage.setItem('stenoKingRevealAlways', revealAlwaysMode);
+}
+
 // Event listeners
 startBtn.addEventListener('click', startPractice);
 pauseBtn.addEventListener('click', togglePause);
 revealBtn.addEventListener('click', revealChord);
+revealAlwaysBtn.addEventListener('click', toggleRevealAlways);
 
 wordInputEl.addEventListener('input', checkWord);
 
@@ -1097,6 +1137,19 @@ function loadAnkiMode() {
     }
 }
 
+// Load Reveal Always mode preference
+function loadRevealAlways() {
+    const saved = localStorage.getItem('stenoKingRevealAlways');
+    if (saved !== null) {
+        revealAlwaysMode = saved === 'true';
+        if (revealAlwaysMode) {
+            revealAlwaysBtn.classList.remove('btn-toggle');
+            revealAlwaysBtn.classList.add('btn-toggle-active');
+            revealAlwaysText.textContent = 'Hide Always';
+        }
+    }
+}
+
 // Initialize: Load dictionary, custom lists, settings, and Anki data
 loadPloverDictionary();
 loadCustomListFromStorage();
@@ -1104,3 +1157,4 @@ loadCustomPhraseFromStorage();
 loadSettings();
 loadWordScores();
 loadAnkiMode();
+loadRevealAlways();

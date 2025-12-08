@@ -1,325 +1,471 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>StenoKing - Stenography Practice</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
     <!-- Navbar -->
     <nav class="navbar">
-        <div class="nav-content">
-            <div class="nav-brand">
-                <span class="brand-icon">⌨️</span>
-                <span class="brand-name">StenoKing</span>
-            </div>
-            <div class="nav-links">
-                <span class="nav-subtitle">Master Your Stenography Skills</span>
-                <label class="anki-mode-toggle">
-                    <input type="checkbox" id="anki-mode-checkbox">
-                    <span class="anki-label">Anki Mode</span>
-                </label>
-                <button id="custom-list-btn" class="custom-list-btn">Custom List</button>
-                <button id="custom-phrase-btn" class="custom-list-btn">Custom Phrase</button>
-                <button id="settings-btn" class="settings-btn" title="Settings">⚙️</button>
-            </div>
+      <div class="nav-content">
+        <div class="nav-brand">
+          <span class="brand-icon">⌨️</span>
+          <span class="brand-name">StenoKing</span>
         </div>
+        <div class="nav-links">
+          <span class="nav-subtitle">Master Your Stenography Skills</span>
+          <label class="anki-mode-toggle">
+            <input type="checkbox" id="anki-mode-checkbox" />
+            <span class="anki-label">Anki Mode</span>
+          </label>
+          <button id="custom-list-btn" class="custom-list-btn">
+            Custom List
+          </button>
+          <button id="custom-phrase-btn" class="custom-list-btn">
+            Custom Phrase
+          </button>
+          <button id="settings-btn" class="settings-btn" title="Settings">
+            ⚙️
+          </button>
+        </div>
+      </div>
     </nav>
 
     <div class="app-container">
-        <!-- Left Sidebar - Categories -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h3>Categories</h3>
-                <button id="clear-all" class="clear-btn">Clear All</button>
+      <!-- Left Sidebar - Categories -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <h3>Categories</h3>
+          <button id="clear-all" class="clear-btn">Clear All</button>
+        </div>
+        <div class="category-list">
+          <div
+            class="category-group"
+            id="custom-category"
+            style="display: none"
+          >
+            <h4 class="group-title">Custom</h4>
+            <label
+              class="category-label"
+              id="custom-list-item"
+              style="display: none"
+            >
+              <input
+                type="checkbox"
+                value="custom-list"
+                class="category-checkbox"
+              />
+              <span id="custom-list-label">My Custom List (0)</span>
+            </label>
+            <label
+              class="category-label"
+              id="custom-phrase-item"
+              style="display: none"
+            >
+              <input
+                type="checkbox"
+                value="custom-phrase"
+                class="category-checkbox"
+              />
+              <span id="custom-phrase-label">My Custom Phrase (0)</span>
+            </label>
+          </div>
+
+          <div class="category-group">
+            <h4 class="group-title">Intro</h4>
+            <label class="category-label">
+              <input
+                type="checkbox"
+                value="lesson-1"
+                class="category-checkbox"
+              />
+              <span>Learn the Layout</span>
+            </label>
+          </div>
+
+          <div class="category-group">
+            <h4 class="group-title">Sentences</h4>
+            <label class="category-label">
+              <input
+                type="checkbox"
+                value="sentences-1"
+                class="category-checkbox"
+              />
+              <span>Sentences 1</span>
+            </label>
+            <label class="category-label">
+              <input
+                type="checkbox"
+                value="sentences-2"
+                class="category-checkbox"
+              />
+              <span>Sentences 2</span>
+            </label>
+            <label class="category-label">
+              <input
+                type="checkbox"
+                value="sentences-3"
+                class="category-checkbox"
+              />
+              <span>Sentences 3</span>
+            </label>
+          </div>
+
+          <div class="category-group">
+            <h4 class="group-title">Keystroke Patterns</h4>
+            <label class="category-label">
+              <input
+                type="checkbox"
+                value="1-keystroke"
+                class="category-checkbox"
+              />
+              <span>1 Keystroke</span>
+            </label>
+            <label class="category-label">
+              <input
+                type="checkbox"
+                value="2-keystrokes"
+                class="category-checkbox"
+              />
+              <span>2 Keystrokes</span>
+            </label>
+            <label class="category-label">
+              <input
+                type="checkbox"
+                value="3-keystrokes"
+                class="category-checkbox"
+              />
+              <span>3 Keystrokes</span>
+            </label>
+            <label class="category-label">
+              <input
+                type="checkbox"
+                value="4-keystrokes"
+                class="category-checkbox"
+              />
+              <span>4 Keystrokes</span>
+            </label>
+          </div>
+
+          <div class="category-group">
+            <h4 class="group-title">Advanced Techniques</h4>
+            <label class="category-label">
+              <input
+                type="checkbox"
+                value="dropping-unstressed-vowels"
+                class="category-checkbox"
+              />
+              <span>Dropping Unstressed Vowels</span>
+            </label>
+            <label class="category-label">
+              <input
+                type="checkbox"
+                value="diphthong-chords"
+                class="category-checkbox"
+              />
+              <span>Diphthong Chords</span>
+            </label>
+            <label class="category-label">
+              <input
+                type="checkbox"
+                value="vowel-disambiguator-chords"
+                class="category-checkbox"
+              />
+              <span>Vowel Disambiguator</span>
+            </label>
+            <label class="category-label">
+              <input
+                type="checkbox"
+                value="digraphs"
+                class="category-checkbox"
+              />
+              <span>Digraphs</span>
+            </label>
+          </div>
+
+          <div class="category-group">
+            <h4 class="group-title">Consonant Clusters</h4>
+            <label class="category-label">
+              <input
+                type="checkbox"
+                value="k-d-f-l-g-b-z-v"
+                class="category-checkbox"
+              />
+              <span>K, D, F, L, G, B, Z, V</span>
+            </label>
+            <label class="category-label">
+              <input
+                type="checkbox"
+                value="n-m-j-y"
+                class="category-checkbox"
+              />
+              <span>N, M, J, Y</span>
+            </label>
+            <label class="category-label">
+              <input
+                type="checkbox"
+                value="compound-clusters"
+                class="category-checkbox"
+              />
+              <span>Compound Clusters</span>
+            </label>
+          </div>
+
+          <div class="category-group">
+            <h4 class="group-title">Combinations</h4>
+            <label class="category-label">
+              <input
+                type="checkbox"
+                value="combo-1"
+                class="category-checkbox"
+              />
+              <span>Combo 1</span>
+            </label>
+            <label class="category-label">
+              <input
+                type="checkbox"
+                value="combo-2"
+                class="category-checkbox"
+              />
+              <span>Combo 2</span>
+            </label>
+            <label class="category-label">
+              <input
+                type="checkbox"
+                value="combo-3"
+                class="category-checkbox"
+              />
+              <span>Combo 3</span>
+            </label>
+          </div>
+
+          <div class="category-group">
+            <h4 class="group-title">Common Briefs</h4>
+            <label class="category-label">
+              <input
+                type="checkbox"
+                value="100-common-briefs"
+                class="category-checkbox"
+              />
+              <span>100 Common Briefs</span>
+            </label>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Practice Area -->
+      <main class="main-content">
+        <div class="practice-card">
+          <!-- Stats -->
+          <div class="stats-bar">
+            <div class="stat-item">
+              <span class="stat-label">WPM</span>
+              <span class="stat-value" id="wpm">0</span>
             </div>
-            <div class="category-list">
-                <div class="category-group" id="custom-category" style="display: none;">
-                    <h4 class="group-title">Custom</h4>
-                    <label class="category-label" id="custom-list-item" style="display: none;">
-                        <input type="checkbox" value="custom-list" class="category-checkbox">
-                        <span id="custom-list-label">My Custom List (0)</span>
-                    </label>
-                    <label class="category-label" id="custom-phrase-item" style="display: none;">
-                        <input type="checkbox" value="custom-phrase" class="category-checkbox">
-                        <span id="custom-phrase-label">My Custom Phrase (0)</span>
-                    </label>
-                </div>
-
-                <div class="category-group">
-                    <h4 class="group-title">Intro</h4>
-                    <label class="category-label">
-                        <input type="checkbox" value="lesson-1" class="category-checkbox">
-                        <span>Learn the Layout</span>
-                    </label>
-                </div>
-
-                <div class="category-group">
-                    <h4 class="group-title">Sentences</h4>
-                    <label class="category-label">
-                        <input type="checkbox" value="sentences-1" class="category-checkbox">
-                        <span>Sentences 1</span>
-                    </label>
-                    <label class="category-label">
-                        <input type="checkbox" value="sentences-2" class="category-checkbox">
-                        <span>Sentences 2</span>
-                    </label>
-                    <label class="category-label">
-                        <input type="checkbox" value="sentences-3" class="category-checkbox">
-                        <span>Sentences 3</span>
-                    </label>
-                </div>
-
-                <div class="category-group">
-                    <h4 class="group-title">Keystroke Patterns</h4>
-                    <label class="category-label">
-                        <input type="checkbox" value="1-keystroke" class="category-checkbox">
-                        <span>1 Keystroke</span>
-                    </label>
-                    <label class="category-label">
-                        <input type="checkbox" value="2-keystrokes" class="category-checkbox">
-                        <span>2 Keystrokes</span>
-                    </label>
-                    <label class="category-label">
-                        <input type="checkbox" value="3-keystrokes" class="category-checkbox">
-                        <span>3 Keystrokes</span>
-                    </label>
-                    <label class="category-label">
-                        <input type="checkbox" value="4-keystrokes" class="category-checkbox">
-                        <span>4 Keystrokes</span>
-                    </label>
-                </div>
-
-                <div class="category-group">
-                    <h4 class="group-title">Advanced Techniques</h4>
-                    <label class="category-label">
-                        <input type="checkbox" value="dropping-unstressed-vowels" class="category-checkbox">
-                        <span>Dropping Unstressed Vowels</span>
-                    </label>
-                    <label class="category-label">
-                        <input type="checkbox" value="diphthong-chords" class="category-checkbox">
-                        <span>Diphthong Chords</span>
-                    </label>
-                    <label class="category-label">
-                        <input type="checkbox" value="vowel-disambiguator-chords" class="category-checkbox">
-                        <span>Vowel Disambiguator</span>
-                    </label>
-                    <label class="category-label">
-                        <input type="checkbox" value="digraphs" class="category-checkbox">
-                        <span>Digraphs</span>
-                    </label>
-                </div>
-
-                <div class="category-group">
-                    <h4 class="group-title">Consonant Clusters</h4>
-                    <label class="category-label">
-                        <input type="checkbox" value="k-d-f-l-g-b-z-v" class="category-checkbox">
-                        <span>K, D, F, L, G, B, Z, V</span>
-                    </label>
-                    <label class="category-label">
-                        <input type="checkbox" value="n-m-j-y" class="category-checkbox">
-                        <span>N, M, J, Y</span>
-                    </label>
-                    <label class="category-label">
-                        <input type="checkbox" value="compound-clusters" class="category-checkbox">
-                        <span>Compound Clusters</span>
-                    </label>
-                </div>
-
-                <div class="category-group">
-                    <h4 class="group-title">Combinations</h4>
-                    <label class="category-label">
-                        <input type="checkbox" value="combo-1" class="category-checkbox">
-                        <span>Combo 1</span>
-                    </label>
-                    <label class="category-label">
-                        <input type="checkbox" value="combo-2" class="category-checkbox">
-                        <span>Combo 2</span>
-                    </label>
-                    <label class="category-label">
-                        <input type="checkbox" value="combo-3" class="category-checkbox">
-                        <span>Combo 3</span>
-                    </label>
-                </div>
-
-                <div class="category-group">
-                    <h4 class="group-title">Common Briefs</h4>
-                    <label class="category-label">
-                        <input type="checkbox" value="100-common-briefs" class="category-checkbox">
-                        <span>100 Common Briefs</span>
-                    </label>
-                </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+              <span class="stat-label">Words</span>
+              <span class="stat-value" id="word-count">0</span>
             </div>
-        </aside>
+          </div>
 
-        <!-- Main Practice Area -->
-        <main class="main-content">
-            <div class="practice-card">
-                <!-- Stats -->
-                <div class="stats-bar">
-                    <div class="stat-item">
-                        <span class="stat-label">WPM</span>
-                        <span class="stat-value" id="wpm">0</span>
-                    </div>
-                    <div class="stat-divider"></div>
-                    <div class="stat-item">
-                        <span class="stat-label">Words</span>
-                        <span class="stat-value" id="word-count">0</span>
-                    </div>
-                </div>
+          <!-- TTS Mode Toggle (for sentences) -->
+          <div
+            class="tts-mode-section"
+            id="tts-mode-section"
+            style="display: none"
+          >
+            <label class="tts-mode-label">
+              <span class="tts-label-text">TTS Mode:</span>
+              <div class="toggle-buttons">
+                <button id="tts-word-btn" class="toggle-btn active">
+                  Word by Word
+                </button>
+                <button id="tts-sentence-btn" class="toggle-btn">
+                  Full Sentence
+                </button>
+              </div>
+            </label>
+          </div>
 
-                <!-- TTS Mode Toggle (for sentences) -->
-                <div class="tts-mode-section" id="tts-mode-section" style="display: none;">
-                    <label class="tts-mode-label">
-                        <span class="tts-label-text">TTS Mode:</span>
-                        <div class="toggle-buttons">
-                            <button id="tts-word-btn" class="toggle-btn active">Word by Word</button>
-                            <button id="tts-sentence-btn" class="toggle-btn">Full Sentence</button>
-                        </div>
-                    </label>
-                </div>
+          <!-- Word Display -->
+          <div class="word-display">
+            <div
+              id="difficulty-indicator"
+              class="difficulty-indicator"
+              style="display: none"
+            ></div>
+            <h2 id="current-word">Select categories and press Start</h2>
+          </div>
 
-                <!-- Word Display -->
-                <div class="word-display">
-                    <div id="difficulty-indicator" class="difficulty-indicator" style="display: none;"></div>
-                    <h2 id="current-word">Select categories and press Start</h2>
-                </div>
+          <!-- Chord Hint -->
+          <div class="chord-hint hidden" id="chord-hint">
+            <span class="hint-text" id="hint-text"></span>
+          </div>
 
-                <!-- Chord Hint -->
-                <div class="chord-hint hidden" id="chord-hint">
-                    <span class="hint-text" id="hint-text"></span>
-                </div>
+          <!-- Input Section -->
+          <div class="input-section">
+            <input
+              type="text"
+              id="word-input"
+              placeholder="Type here..."
+              autocomplete="off"
+              disabled
+            />
+          </div>
 
-                <!-- Input Section -->
-                <div class="input-section">
-                    <input
-                        type="text"
-                        id="word-input"
-                        placeholder="Type here..."
-                        autocomplete="off"
-                        disabled
-                    >
-                </div>
+          <!-- Controls -->
+          <div class="controls">
+            <button id="start-btn" class="btn btn-primary">
+              <span class="btn-icon">▶</span>
+              <span>Start Practice</span>
+            </button>
+            <button id="pause-btn" class="btn btn-warning" disabled>
+              <span class="btn-icon">⏸</span>
+              <span>Pause</span>
+            </button>
+            <button id="reveal-btn" class="btn btn-secondary" disabled>
+              <span class="btn-icon">👁️</span>
+              <span>Reveal Chord</span>
+            </button>
+            <button id="reveal-always-btn" class="btn btn-toggle" disabled>
+              <span class="btn-icon">👁️</span>
+              <span id="reveal-always-text">Reveal Always</span>
+            </button>
+          </div>
+        </div>
 
-                <!-- Controls -->
-                <div class="controls">
-                    <button id="start-btn" class="btn btn-primary">
-                        <span class="btn-icon">▶</span>
-                        <span>Start Practice</span>
-                    </button>
-                    <button id="pause-btn" class="btn btn-warning" disabled>
-                        <span class="btn-icon">⏸</span>
-                        <span>Pause</span>
-                    </button>
-                    <button id="reveal-btn" class="btn btn-secondary" disabled>
-                        <span class="btn-icon">👁️</span>
-                        <span>Reveal Chord</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Decorative Elements -->
-            <div class="deco-circle deco-1"></div>
-            <div class="deco-circle deco-2"></div>
-            <div class="deco-line deco-3"></div>
-        </main>
+        <!-- Decorative Elements -->
+        <div class="deco-circle deco-1"></div>
+        <div class="deco-circle deco-2"></div>
+        <div class="deco-line deco-3"></div>
+      </main>
     </div>
 
     <!-- Custom List Modal -->
     <div id="custom-list-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Create Custom Word List</h2>
-                <span class="modal-close">&times;</span>
-            </div>
-            <div class="modal-body">
-                <p class="modal-instructions">Enter up to 200 words (one per line). We'll automatically look up the Plover steno chords for each word.</p>
-                <textarea id="custom-words-input" placeholder="Enter words here, one per line...&#10;Example:&#10;hello&#10;world&#10;stenography"></textarea>
-                <div class="word-count-display">
-                    <span id="word-count-display">0</span> / 200 words
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button id="cancel-custom-btn" class="btn btn-secondary">Cancel</button>
-                <button id="save-custom-btn" class="btn btn-primary">Save List</button>
-            </div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Create Custom Word List</h2>
+          <span class="modal-close">&times;</span>
         </div>
+        <div class="modal-body">
+          <p class="modal-instructions">
+            Enter up to 200 words (one per line). We'll automatically look up
+            the Plover steno chords for each word.
+          </p>
+          <textarea
+            id="custom-words-input"
+            placeholder="Enter words here, one per line...&#10;Example:&#10;hello&#10;world&#10;stenography"
+          ></textarea>
+          <div class="word-count-display">
+            <span id="word-count-display">0</span> / 200 words
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="cancel-custom-btn" class="btn btn-secondary">
+            Cancel
+          </button>
+          <button id="save-custom-btn" class="btn btn-primary">
+            Save List
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Custom Phrase Modal -->
     <div id="custom-phrase-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Create Custom Phrase</h2>
-                <span class="modal-close-phrase">&times;</span>
-            </div>
-            <div class="modal-body">
-                <p class="modal-instructions">Paste a phrase or paragraph (up to 200 words). We'll automatically look up the Plover steno chords for each word, separated by spaces.</p>
-                <textarea id="custom-phrase-input" placeholder="Paste your phrase or paragraph here...&#10;Example: The quick brown fox jumps over the lazy dog"></textarea>
-                <div class="word-count-display">
-                    <span id="phrase-word-count-display">0</span> / 200 words
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button id="cancel-phrase-btn" class="btn btn-secondary">Cancel</button>
-                <button id="save-phrase-btn" class="btn btn-primary">Save Phrase</button>
-            </div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Create Custom Phrase</h2>
+          <span class="modal-close-phrase">&times;</span>
         </div>
+        <div class="modal-body">
+          <p class="modal-instructions">
+            Paste a phrase or paragraph (up to 200 words). We'll automatically
+            look up the Plover steno chords for each word, separated by spaces.
+          </p>
+          <textarea
+            id="custom-phrase-input"
+            placeholder="Paste your phrase or paragraph here...&#10;Example: The quick brown fox jumps over the lazy dog"
+          ></textarea>
+          <div class="word-count-display">
+            <span id="phrase-word-count-display">0</span> / 200 words
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="cancel-phrase-btn" class="btn btn-secondary">
+            Cancel
+          </button>
+          <button id="save-phrase-btn" class="btn btn-primary">
+            Save Phrase
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Settings Modal -->
     <div id="settings-modal" class="modal">
-        <div class="modal-content settings-modal-content">
-            <div class="modal-header">
-                <h2>Settings</h2>
-                <span class="modal-close-settings">&times;</span>
-            </div>
-            <div class="modal-body">
-                <!-- Background Gradient -->
-                <div class="setting-section">
-                    <h3 class="setting-title">Background Gradient</h3>
-                    <p class="setting-description">Choose a custom two-color gradient for the background</p>
-                    <div class="color-picker-group">
-                        <div class="color-picker-item">
-                            <label for="bg-color-1">Color 1</label>
-                            <input type="color" id="bg-color-1" value="#0f172a">
-                        </div>
-                        <div class="color-picker-item">
-                            <label for="bg-color-2">Color 2</label>
-                            <input type="color" id="bg-color-2" value="#1e293b">
-                        </div>
-                        <button id="reset-gradient-btn" class="btn-small">Reset to Default</button>
-                    </div>
-                </div>
-
-                <!-- Noisey Mode -->
-                <div class="setting-section">
-                    <h3 class="setting-title">Noisey Mode</h3>
-                    <p class="setting-description">Play a subtle, satisfying sound when you type a word correctly</p>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="noisey-mode-toggle">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-
-                <!-- Background Texture -->
-                <div class="setting-section">
-                    <h3 class="setting-title">Background Texture</h3>
-                    <p class="setting-description">Add a subtle texture overlay to the background</p>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="texture-toggle">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button id="close-settings-btn" class="btn btn-primary">Done</button>
-            </div>
+      <div class="modal-content settings-modal-content">
+        <div class="modal-header">
+          <h2>Settings</h2>
+          <span class="modal-close-settings">&times;</span>
         </div>
+        <div class="modal-body">
+          <!-- Background Gradient -->
+          <div class="setting-section">
+            <h3 class="setting-title">Background Gradient</h3>
+            <p class="setting-description">
+              Choose a custom two-color gradient for the background
+            </p>
+            <div class="color-picker-group">
+              <div class="color-picker-item">
+                <label for="bg-color-1">Color 1</label>
+                <input type="color" id="bg-color-1" value="#0f172a" />
+              </div>
+              <div class="color-picker-item">
+                <label for="bg-color-2">Color 2</label>
+                <input type="color" id="bg-color-2" value="#1e293b" />
+              </div>
+              <button id="reset-gradient-btn" class="btn-small">
+                Reset to Default
+              </button>
+            </div>
+          </div>
+
+          <!-- Noisey Mode -->
+          <div class="setting-section">
+            <h3 class="setting-title">Noisey Mode</h3>
+            <p class="setting-description">
+              Play a subtle, satisfying sound when you type a word correctly
+            </p>
+            <label class="toggle-switch">
+              <input type="checkbox" id="noisey-mode-toggle" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <!-- Background Texture -->
+          <div class="setting-section">
+            <h3 class="setting-title">Background Texture</h3>
+            <p class="setting-description">
+              Add a subtle texture overlay to the background
+            </p>
+            <label class="toggle-switch">
+              <input type="checkbox" id="texture-toggle" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="close-settings-btn" class="btn btn-primary">Done</button>
+        </div>
+      </div>
     </div>
 
     <script src="words.js"></script>
     <script src="app.js"></script>
-</body>
+  </body>
 </html>
