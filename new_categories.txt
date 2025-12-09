@@ -1,0 +1,3 @@
+This file contains the data to be added to words.js before the closing brace.
+
+I'll add these categories through multiple edit operations due to size constraints.

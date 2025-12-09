@@ -4,7 +4,11 @@
       "Bash(git add:*)",
       "WebSearch",
       "WebFetch(domain:github.com)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(start index.html)",
+      "Bash(python append_categories.py:*)",
+      "Bash(python append_rest.py:*)",
+      "Bash(python update_html_collapsible.py:*)"
     ],
     "deny": [],
     "ask": []

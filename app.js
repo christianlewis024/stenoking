@@ -601,6 +601,8 @@ clearAllBtn.addEventListener('click', () => {
     categoryCheckboxes.forEach(checkbox => {
         checkbox.checked = false;
     });
+    // Update category highlights after clearing
+    updateCategoryHighlights();
 });
 
 // Show/hide TTS mode section based on selected categories
@@ -1158,3 +1160,66 @@ loadSettings();
 loadWordScores();
 loadAnkiMode();
 loadRevealAlways();
+
+// Collapsible Category Groups
+function initCollapsibleCategories() {
+    const collapsibleTitles = document.querySelectorAll('.group-title.collapsible');
+
+    collapsibleTitles.forEach(title => {
+        // Start all categories collapsed
+        title.classList.add('collapsed');
+        const categoryItems = title.nextElementSibling;
+        if (categoryItems && categoryItems.classList.contains('category-items')) {
+            categoryItems.classList.add('collapsed');
+        }
+
+        // Add click handler to toggle
+        title.addEventListener('click', function() {
+            // Toggle collapsed class on the title
+            this.classList.toggle('collapsed');
+
+            // Find the category-items div (next sibling)
+            const categoryItems = this.nextElementSibling;
+            if (categoryItems && categoryItems.classList.contains('category-items')) {
+                categoryItems.classList.toggle('collapsed');
+            }
+        });
+    });
+
+    // Update highlights for all categories
+    updateCategoryHighlights();
+}
+
+// Function to update category title highlights based on checked items
+function updateCategoryHighlights() {
+    const categoryGroups = document.querySelectorAll('.category-group');
+
+    categoryGroups.forEach(group => {
+        const title = group.querySelector('.group-title.collapsible');
+        const checkboxes = group.querySelectorAll('.category-checkbox');
+
+        if (title && checkboxes.length > 0) {
+            // Check if any checkbox is checked
+            const hasChecked = Array.from(checkboxes).some(cb => cb.checked);
+
+            if (hasChecked) {
+                title.classList.add('has-checked');
+            } else {
+                title.classList.remove('has-checked');
+            }
+        }
+    });
+}
+
+// Add event listeners to all checkboxes to update highlights
+function initCheckboxListeners() {
+    const checkboxes = document.querySelectorAll('.category-checkbox');
+
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateCategoryHighlights);
+    });
+}
+
+// Initialize collapsible categories after DOM is loaded
+initCollapsibleCategories();
+initCheckboxListeners();

@@ -278,6 +278,53 @@ body.texture-enabled::before {
     margin-bottom: 0.5rem;
 }
 
+.group-title.collapsible {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: all 0.3s;
+    user-select: none;
+}
+
+.group-title.collapsible:hover {
+    background: rgba(99, 102, 241, 0.1);
+}
+
+.group-title.collapsible.has-checked {
+    background: rgba(99, 102, 241, 0.15);
+    border-left: 3px solid var(--primary);
+    padding-left: calc(0.5rem - 3px);
+}
+
+.collapse-icon {
+    font-size: 0.7rem;
+    transition: transform 0.3s;
+    display: inline-block;
+}
+
+.group-title.collapsed .collapse-icon {
+    transform: rotate(-90deg);
+}
+
+.category-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    overflow: hidden;
+    max-height: 5000px;
+    transition: max-height 0.4s ease, opacity 0.3s ease;
+    opacity: 1;
+}
+
+.category-items.collapsed {
+    max-height: 0;
+    opacity: 0;
+    margin: 0;
+}
+
 .category-label {
     display: flex;
     align-items: center;
