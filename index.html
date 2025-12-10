@@ -26,6 +26,9 @@
           <button id="custom-phrase-btn" class="custom-list-btn">
             Custom Phrase
           </button>
+          <button id="manage-study-list-btn" class="custom-list-btn">
+            Study List
+          </button>
           <button id="settings-btn" class="settings-btn" title="Settings">
             ⚙️
           </button>
@@ -71,6 +74,18 @@
                 class="category-checkbox"
               />
               <span id="custom-phrase-label">My Custom Phrase (0)</span>
+            </label>
+            <label
+              class="category-label"
+              id="study-list-item"
+              style="display: none"
+            >
+              <input
+                type="checkbox"
+                value="study-list"
+                class="category-checkbox"
+              />
+              <span id="study-list-label">Study List (0)</span>
             </label>
           </div>
 
@@ -691,6 +706,14 @@
             <span class="hint-text" id="hint-text"></span>
           </div>
 
+          <!-- Study This Button -->
+          <div class="study-this-section" id="study-this-section" style="display: none;">
+            <button id="study-this-btn" class="btn-study-this" title="Add this word to study list">
+              <span class="study-icon">⭐</span>
+              <span>Study This</span>
+            </button>
+          </div>
+
           <!-- Input Section -->
           <div class="input-section">
             <input
@@ -787,6 +810,34 @@
           </button>
           <button id="save-phrase-btn" class="btn btn-primary">
             Save Phrase
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Study List Modal -->
+    <div id="study-list-modal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Manage Study List</h2>
+          <span class="modal-close-study">&times;</span>
+        </div>
+        <div class="modal-body">
+          <p class="modal-instructions">
+            Words you've marked to study. Click the X to remove any word.
+          </p>
+          <div id="study-list-container" class="study-list-container">
+            <p class="empty-message" id="study-list-empty">
+              No words added yet. Click "Study This" during practice to add words!
+            </p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="clear-study-list-btn" class="btn btn-warning">
+            Clear All
+          </button>
+          <button id="close-study-list-btn" class="btn btn-primary">
+            Done
           </button>
         </div>
       </div>

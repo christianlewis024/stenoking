@@ -21,6 +21,9 @@ let ploverDictionary = null;
 let customWordList = [];
 let customPhraseData = null; // Will store {sentence, words, chords}
 
+// Study list state
+let studyList = []; // Array of {word: 'hello', chord: 'HEL/O'}
+
 // Settings state
 let settings = {
     bgColor1: '#0f172a',
@@ -70,6 +73,19 @@ const customPhraseInput = document.getElementById('custom-phrase-input');
 const phraseWordCountDisplay = document.getElementById('phrase-word-count-display');
 const customPhraseItem = document.getElementById('custom-phrase-item');
 const customPhraseLabel = document.getElementById('custom-phrase-label');
+
+// Study list DOM elements
+const studyThisBtn = document.getElementById('study-this-btn');
+const studyThisSection = document.getElementById('study-this-section');
+const manageStudyListBtn = document.getElementById('manage-study-list-btn');
+const studyListModal = document.getElementById('study-list-modal');
+const modalCloseStudy = document.querySelector('.modal-close-study');
+const closeStudyListBtn = document.getElementById('close-study-list-btn');
+const clearStudyListBtn = document.getElementById('clear-study-list-btn');
+const studyListContainer = document.getElementById('study-list-container');
+const studyListEmpty = document.getElementById('study-list-empty');
+const studyListItem = document.getElementById('study-list-item');
+const studyListLabel = document.getElementById('study-list-label');
 
 // Settings DOM elements
 const settingsBtn = document.getElementById('settings-btn');
@@ -317,6 +333,9 @@ function startPractice() {
     revealBtn.disabled = false;
     revealAlwaysBtn.disabled = false;
 
+    // Show study button section
+    studyThisSection.style.display = 'flex';
+
     // Show first word/sentence
     showNextWord();
 }
@@ -395,6 +414,11 @@ function showNextWord() {
     // Auto-reveal chord if reveal always mode is on
     if (revealAlwaysMode) {
         revealChord();
+    }
+
+    // Show study button when playing
+    if (isPlaying) {
+        studyThisSection.style.display = 'flex';
     }
 }
 
@@ -618,6 +642,167 @@ categoryCheckboxes.forEach(checkbox => {
         }
     });
 });
+
+// ====== STUDY LIST FUNCTIONALITY ======
+
+// Add current word to study list
+function addToStudyList() {
+    if (!isPlaying || !activeWordBank.length) return;
+
+    const currentItem = activeWordBank[currentWordIndex];
+    let wordToAdd, chordToAdd;
+
+    // Check if we're in sentence mode
+    if (currentItem.sentence) {
+        // Extract the current word from the sentence
+        wordToAdd = currentItem.words[currentSentenceWordIndex];
+        chordToAdd = currentItem.chords[currentSentenceWordIndex];
+    } else {
+        // Single word mode
+        wordToAdd = currentItem.word;
+        chordToAdd = currentItem.chord;
+    }
+
+    // Check if word already exists in study list
+    const exists = studyList.some(item =>
+        item.word.toLowerCase() === wordToAdd.toLowerCase()
+    );
+
+    if (exists) {
+        // Visual feedback - already added
+        showStudyFeedback('Already in study list!', false);
+        return;
+    }
+
+    // Add to study list
+    studyList.push({ word: wordToAdd, chord: chordToAdd });
+
+    // Save to localStorage
+    saveStudyList();
+
+    // Update category in sidebar
+    updateStudyListSidebar();
+
+    // Automatically reveal the chord
+    revealChord();
+
+    // Visual feedback
+    showStudyFeedback('Added to study list!', true);
+}
+
+// Show visual feedback when adding to study list
+function showStudyFeedback(message, isSuccess) {
+    const feedback = document.createElement('div');
+    feedback.className = isSuccess ? 'study-feedback success' : 'study-feedback warning';
+    feedback.textContent = message;
+
+    // Insert near study button
+    studyThisSection.appendChild(feedback);
+
+    // Animate in
+    setTimeout(() => feedback.classList.add('show'), 10);
+
+    // Remove after delay
+    setTimeout(() => {
+        feedback.classList.remove('show');
+        setTimeout(() => feedback.remove(), 300);
+    }, 2000);
+}
+
+// Save study list to localStorage
+function saveStudyList() {
+    localStorage.setItem('studyList', JSON.stringify(studyList));
+}
+
+// Load study list from localStorage
+function loadStudyList() {
+    const saved = localStorage.getItem('studyList');
+    if (saved) {
+        try {
+            studyList = JSON.parse(saved);
+            if (studyList.length > 0) {
+                wordCategories['study-list'] = studyList;
+                updateStudyListSidebar();
+                console.log('Loaded study list from storage:', studyList.length, 'words');
+            }
+        } catch (e) {
+            console.error('Error loading study list:', e);
+        }
+    }
+}
+
+// Update study list display in sidebar
+function updateStudyListSidebar() {
+    if (studyList.length > 0) {
+        wordCategories['study-list'] = studyList;
+        customCategory.style.display = 'block';
+        studyListItem.style.display = 'flex';
+        studyListLabel.textContent = `Study List (${studyList.length})`;
+    } else {
+        delete wordCategories['study-list'];
+        studyListItem.style.display = 'none';
+        // Check if we should hide custom category
+        if (!customWordList.length && !customPhraseData) {
+            customCategory.style.display = 'none';
+        }
+    }
+}
+
+// Remove word from study list
+function removeFromStudyList(index) {
+    if (index >= 0 && index < studyList.length) {
+        studyList.splice(index, 1);
+        saveStudyList();
+        updateStudyListSidebar();
+        renderStudyListModal();
+    }
+}
+
+// Clear entire study list
+function clearStudyList() {
+    if (studyList.length === 0) return;
+
+    if (confirm(`Remove all ${studyList.length} words from study list?`)) {
+        studyList = [];
+        saveStudyList();
+        updateStudyListSidebar();
+        renderStudyListModal();
+    }
+}
+
+// Render study list in modal
+function renderStudyListModal() {
+    if (studyList.length === 0) {
+        studyListEmpty.style.display = 'block';
+        studyListContainer.innerHTML = '<p class="empty-message">No words added yet. Click "Study This" during practice to add words!</p>';
+        return;
+    }
+
+    studyListEmpty.style.display = 'none';
+
+    let html = '<div class="study-list-items">';
+    studyList.forEach((item, index) => {
+        html += `
+            <div class="study-list-item">
+                <div class="study-item-info">
+                    <span class="study-item-word">${item.word}</span>
+                    <span class="study-item-chord">${item.chord}</span>
+                </div>
+                <button class="study-item-remove" onclick="removeFromStudyList(${index})" title="Remove">
+                    ×
+                </button>
+            </div>
+        `;
+    });
+    html += '</div>';
+
+    studyListContainer.innerHTML = html;
+}
+
+// Close study list modal
+function closeStudyListModal() {
+    studyListModal.classList.remove('show');
+}
 
 // Initialize
 chordHintEl.classList.add('hidden');
@@ -1050,6 +1235,31 @@ settingsModal.addEventListener('click', (e) => {
     }
 });
 
+// ====== STUDY LIST EVENT LISTENERS ======
+
+// Study This button click
+studyThisBtn.addEventListener('click', addToStudyList);
+
+// Open manage study list modal
+manageStudyListBtn.addEventListener('click', () => {
+    studyListModal.classList.add('show');
+    renderStudyListModal();
+});
+
+// Close study list modal handlers
+modalCloseStudy.addEventListener('click', closeStudyListModal);
+closeStudyListBtn.addEventListener('click', closeStudyListModal);
+
+// Click outside modal to close
+studyListModal.addEventListener('click', (e) => {
+    if (e.target === studyListModal) {
+        closeStudyListModal();
+    }
+});
+
+// Clear study list button
+clearStudyListBtn.addEventListener('click', clearStudyList);
+
 // Background gradient color pickers
 bgColor1Input.addEventListener('input', (e) => {
     settings.bgColor1 = e.target.value;
@@ -1156,6 +1366,7 @@ function loadRevealAlways() {
 loadPloverDictionary();
 loadCustomListFromStorage();
 loadCustomPhraseFromStorage();
+loadStudyList();
 loadSettings();
 loadWordScores();
 loadAnkiMode();
