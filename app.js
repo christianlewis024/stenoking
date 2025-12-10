@@ -29,7 +29,8 @@ let settings = {
     bgColor1: '#0f172a',
     bgColor2: '#1e293b',
     noiseyMode: false,
-    textureEnabled: false
+    textureEnabled: false,
+    ttsMuted: false
 };
 
 // DOM elements
@@ -97,6 +98,7 @@ const bgColor2Input = document.getElementById('bg-color-2');
 const resetGradientBtn = document.getElementById('reset-gradient-btn');
 const noiseyModeToggle = document.getElementById('noisey-mode-toggle');
 const textureToggle = document.getElementById('texture-toggle');
+const muteTtsToggle = document.getElementById('mute-tts-toggle');
 
 // Anki mode DOM element
 const ankiModeCheckbox = document.getElementById('anki-mode-checkbox');
@@ -105,6 +107,11 @@ const ankiModeCheckbox = document.getElementById('anki-mode-checkbox');
 const synth = window.speechSynthesis;
 
 function speakWord(word) {
+    // Don't speak if TTS is muted
+    if (settings.ttsMuted) {
+        return;
+    }
+
     // Cancel any ongoing speech
     synth.cancel();
 
@@ -1301,6 +1308,12 @@ textureToggle.addEventListener('change', (e) => {
     saveSettings();
 });
 
+// Mute TTS toggle
+muteTtsToggle.addEventListener('change', (e) => {
+    settings.ttsMuted = e.target.checked;
+    saveSettings();
+});
+
 // Update background texture
 function updateBackgroundTexture() {
     if (settings.textureEnabled) {
@@ -1323,6 +1336,11 @@ function loadSettings() {
             settings = JSON.parse(savedSettings);
             updateBackgroundGradient();
             updateBackgroundTexture();
+
+            // Update checkbox states
+            noiseyModeToggle.checked = settings.noiseyMode;
+            textureToggle.checked = settings.textureEnabled;
+            muteTtsToggle.checked = settings.ttsMuted;
         } catch (e) {
             console.error('Error loading settings:', e);
         }
