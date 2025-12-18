@@ -51,6 +51,7 @@ const ttsWordBtn = document.getElementById('tts-word-btn');
 const ttsSentenceBtn = document.getElementById('tts-sentence-btn');
 const clearAllBtn = document.getElementById('clear-all');
 const difficultyIndicator = document.getElementById('difficulty-indicator');
+const skipBtn = document.getElementById('skip-btn');
 
 // Custom list DOM elements
 const customListBtn = document.getElementById('custom-list-btn');
@@ -343,6 +344,9 @@ function startPractice() {
     // Show study button section
     studyThisSection.style.display = 'flex';
 
+    // Show skip button
+    skipBtn.style.display = 'block';
+
     // Show first word/sentence
     showNextWord();
 }
@@ -543,6 +547,52 @@ function checkWord() {
     }
 }
 
+// Skip to next word
+function skipWord() {
+    if (!isPlaying) return;
+
+    const currentItem = activeWordBank[currentWordIndex];
+
+    // Determine what to do next (same logic as in checkWord but without marking as correct)
+    if (currentItem.sentence) {
+        // Move to next word in sentence
+        currentSentenceWordIndex++;
+
+        // Check if sentence is complete
+        if (currentSentenceWordIndex >= currentItem.words.length) {
+            // Sentence complete, move to next item
+            currentSentenceWordIndex = 0;
+            currentWordIndex++;
+
+            // Loop back to start if we've gone through all items
+            if (currentWordIndex >= activeWordBank.length) {
+                currentWordIndex = 0;
+                if (ankiMode) {
+                    sortByAnkiScores();
+                } else {
+                    shuffleWords();
+                }
+            }
+        }
+    } else {
+        // Move to next single word
+        currentWordIndex++;
+
+        // Loop back to start if we've gone through all items
+        if (currentWordIndex >= activeWordBank.length) {
+            currentWordIndex = 0;
+            if (ankiMode) {
+                sortByAnkiScores();
+            } else {
+                shuffleWords();
+            }
+        }
+    }
+
+    // Show next word
+    showNextWord();
+}
+
 // Pause/Resume functionality
 function togglePause() {
     if (isPlaying) {
@@ -604,6 +654,7 @@ startBtn.addEventListener('click', startPractice);
 pauseBtn.addEventListener('click', togglePause);
 revealBtn.addEventListener('click', revealChord);
 revealAlwaysBtn.addEventListener('click', toggleRevealAlways);
+skipBtn.addEventListener('click', skipWord);
 
 wordInputEl.addEventListener('input', checkWord);
 

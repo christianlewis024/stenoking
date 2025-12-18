@@ -389,6 +389,30 @@ body.texture-enabled::before {
     z-index: 10;
 }
 
+/* Skip Button */
+.btn-skip {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    padding: 0.5rem 0.9rem;
+    background: rgba(148, 163, 184, 0.15);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.3s;
+    z-index: 20;
+}
+
+.btn-skip:hover {
+    background: rgba(148, 163, 184, 0.25);
+    color: var(--text-primary);
+    border-color: var(--primary);
+    transform: translateX(2px);
+}
+
 /* Stats Bar */
 .stats-bar {
     display: flex;
